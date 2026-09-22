@@ -1,0 +1,36 @@
+name: awesome_scroll_actions
+description: >-
+  Awesome Scroll Actions dial. An arc of action pills you spin with a
+  vertical drag, tuck away with a side pull, and select with a tap.
+version: 2.0.0
+
+environment:
+  sdk: ^3.13.0
+  flutter: ">=3.47.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  fonts:
+    - family: AwesomeScrollIcons
+      fonts:
+        - asset: lib/fonts/AwesomeScrollIcons.ttf
+    - family: PlusJakartaSans
+      fonts:
+        - asset: lib/fonts/PlusJakartaSans-400.ttf
+          weight: 400
+        - asset: lib/fonts/PlusJakartaSans-500.ttf
+          weight: 500
+        - asset: lib/fonts/PlusJakartaSans-600.ttf
+          weight: 600
+        - asset: lib/fonts/PlusJakartaSans-700.ttf
+          weight: 700
+        - asset: lib/fonts/PlusJakartaSans-800.ttf
+          weight: 800
