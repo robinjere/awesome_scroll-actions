@@ -1,7 +1,6 @@
 # awesome_scroll_actions
 
-The Awesome Scroll Actions dial as a Flutter package, ported from the Claude
-Design file `CooPesa Quick Actions`.
+The Awesome Scroll Actions dial as a Flutter package.
 
 Action pills ride along a large circle whose centre sits off the left edge
 of the screen. The centred pill turns dark and expands to show its label, a
