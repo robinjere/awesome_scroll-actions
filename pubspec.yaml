@@ -4,6 +4,9 @@ description: >-
   vertical drag, tuck away with a side pull, and select with a tap.
 version: 2.0.0
 
+repository: https://github.com/robinjere/awesome_scroll-actions
+issue_tracker: https://github.com/robinjere/awesome_scroll-actions/issues
+
 environment:
   sdk: ^3.13.0
   flutter: ">=3.47.0"
