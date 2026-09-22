@@ -2,10 +2,20 @@ name: awesome_scroll_actions
 description: >-
   Awesome Scroll Actions dial. An arc of action pills you spin with a
   vertical drag, tuck away with a side pull, and select with a tap.
-version: 2.0.0
+version: 2.0.1
 
 repository: https://github.com/robinjere/awesome_scroll-actions
 issue_tracker: https://github.com/robinjere/awesome_scroll-actions/issues
+
+screenshots:
+  - description: The dial at rest, with the centred action expanded into its pill.
+    path: screenshots/open.png
+  - description: The same dial in the shipped dark palette.
+    path: screenshots/dark.png
+  - description: showGuideLine draws the circle the pills ride along.
+    path: screenshots/guide.png
+  - description: The horizontal arc, mirrored onto the bottom edge.
+    path: screenshots/horizontal.png
 
 environment:
   sdk: ^3.13.0

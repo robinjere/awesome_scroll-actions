@@ -8,6 +8,17 @@ of the screen. The centred pill turns dark and expands to show its label, a
 stat card above swaps to that action's figures, and a toast confirms the
 choice.
 
+**[Try the live demo](https://robinjere.github.io/awesome_scroll-actions/)** — the example app built for web.
+
+| | | |
+| :---: | :---: | :---: |
+| <img src="https://raw.githubusercontent.com/robinjere/awesome_scroll-actions/main/screenshots/open.png" width="210" alt="The dial at rest"> | <img src="https://raw.githubusercontent.com/robinjere/awesome_scroll-actions/main/screenshots/dark.png" width="210" alt="The dark palette"> | <img src="https://raw.githubusercontent.com/robinjere/awesome_scroll-actions/main/screenshots/guide.png" width="210" alt="showGuideLine enabled"> |
+| At rest | `AwesomeScrollActionsTheme.dark` | `showGuideLine: true` |
+
+<img src="https://raw.githubusercontent.com/robinjere/awesome_scroll-actions/main/screenshots/horizontal.png" width="640" alt="The horizontal arc">
+
+`QuickActionsArc.horizontal` — the dial mirrored onto the bottom edge.
+
 | Gesture | Result |
 | --- | --- |
 | Vertical drag | Spin the dial; it snaps to the nearest action on release |
@@ -21,10 +32,13 @@ channels, so it runs on Android, iOS, web and desktop.
 
 ## Install
 
+```bash
+flutter pub add awesome_scroll_actions
+```
+
 ```yaml
 dependencies:
-  awesome_scroll_actions:
-    path: ../awesome_scroll_actions   # or a git dependency
+  awesome_scroll_actions: ^2.0.0
 ```
 
 ## Use
@@ -270,4 +284,23 @@ flutter run
 
 cd ..
 flutter test
+```
+
+The web build behind the [live demo](https://robinjere.github.io/awesome_scroll-actions/)
+is published from `example/` by the `demo` GitHub Actions workflow on every
+push to `main`:
+
+```bash
+cd example
+flutter build web --release --base-href /awesome_scroll-actions/
+```
+
+`example/lib/main_shots.dart` renders one dial configuration per `?shot=`
+value; the README images are captured from it, so they can be regenerated
+after a visual change:
+
+```bash
+cd example
+flutter build web --release -t lib/main_shots.dart --output build/shots
+# serve build/shots, then screenshot ?shot=open|dark|guide|horizontal
 ```

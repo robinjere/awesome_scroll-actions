@@ -1,3 +1,12 @@
+## 2.0.1
+
+- Added screenshots to the README and the pub.dev listing, plus a live web
+  demo published to GitHub Pages from `example/`.
+- `example/lib/main_shots.dart` renders one dial configuration per `?shot=`
+  value, so the images can be regenerated after a visual change.
+- Install instructions now point at the published package rather than a
+  local path.
+
 ## 2.0.0
 
 Renamed the package and dropped the `CooPesa` brand prefix. Breaking:
