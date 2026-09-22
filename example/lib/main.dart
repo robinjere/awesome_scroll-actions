@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:awesome_scroll_actions/awesome_scroll_actions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -24,6 +26,31 @@ class AwesomeScrollDemoApp extends StatelessWidget {
         extensions: const [AwesomeScrollActionsTheme.dark],
       ),
       themeMode: ThemeMode.system,
+      // The dial is drawn for a phone. A desktop browser window would
+      // stretch it across the full viewport, so on anything wider than a
+      // tablet the demo sits in a phone-shaped frame instead. The widget
+      // itself measures with a LayoutBuilder, so bounding it is enough.
+      builder: (context, child) {
+        final size = MediaQuery.sizeOf(context);
+        if (size.width < 600) return child!;
+        return ColoredBox(
+          color: const Color(0xFF0E1620),
+          child: Center(
+            child: PhysicalModel(
+              color: Colors.black,
+              borderRadius: BorderRadius.circular(32),
+              elevation: 12,
+              clipBehavior: Clip.antiAlias,
+              child: SizedBox(
+                width: 390,
+                // Shrink to fit a short window rather than overflowing it.
+                height: math.min(844, size.height - 48),
+                child: child,
+              ),
+            ),
+          ),
+        );
+      },
       home: const AwesomeScrollActionsScreen(),
     );
   }
