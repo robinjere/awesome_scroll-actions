@@ -1,3 +1,14 @@
+## 2.1.0
+
+- New `onActionTapped` fires only when a pill is tapped. `onActionSelected`
+  still fires on every settle, spins included, so move navigation to
+  `onActionTapped` if a spin should only highlight.
+- With `showBackground: false`, a tucked dial no longer swallows touches:
+  only its edge handle does, and the page underneath works as normal.
+  Starting a pull now means starting it on the handle.
+- With `showBackground: false`, a tap outside the open dial tucks it.
+- Lowered the floor to Flutter 3.38 / Dart 3.10.
+
 ## 2.0.1
 
 - Added screenshots to the README and the pub.dev listing, plus a live web

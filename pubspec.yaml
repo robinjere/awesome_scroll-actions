@@ -2,7 +2,7 @@ name: awesome_scroll_actions
 description: >-
   Awesome Scroll Actions dial. An arc of action pills you spin with a
   vertical drag, tuck away with a side pull, and select with a tap.
-version: 2.0.1
+version: 2.1.0
 
 repository: https://github.com/robinjere/awesome_scroll-actions
 issue_tracker: https://github.com/robinjere/awesome_scroll-actions/issues
@@ -18,8 +18,8 @@ screenshots:
     path: screenshots/horizontal.png
 
 environment:
-  sdk: ^3.13.0
-  flutter: ">=3.47.0"
+  sdk: ^3.10.0
+  flutter: ">=3.38.0"
 
 dependencies:
   flutter:

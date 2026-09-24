@@ -26,7 +26,7 @@ choice.
 | Tap the edge handle | Open a tucked dial |
 | Mouse wheel / trackpad | Step one action at a time |
 
-Targets Flutter 3.47 / Dart 3.13 (current stable). Pure Dart: no platform
+Needs Flutter 3.38 / Dart 3.10 or newer. Pure Dart: no platform
 channels, so it runs on Android, iOS, web and desktop.
 
 ## Install
@@ -37,7 +37,7 @@ flutter pub add awesome_scroll_actions
 
 ```yaml
 dependencies:
-  awesome_scroll_actions: ^2.0.0
+  awesome_scroll_actions: ^2.1.0
 ```
 
 ## Use
@@ -47,12 +47,16 @@ Scaffold(
   body: AwesomeScrollActions(
     actions: AwesomeScrollDefaults.actions,
     initialActionId: 'scan_pay',
-    onActionSelected: (action, index) {
+    onActionTapped: (action, index) {
       Navigator.pushNamed(context, '/${action.id}');
     },
   ),
 )
 ```
+
+`onActionTapped` fires only when a pill is tapped, so spinning just
+highlights. `onActionSelected` fires on every settle, spins included; use it
+to track the highlighted action, not to navigate.
 
 The widget fills its parent and handles safe-area insets itself, so give it
 the whole screen.
@@ -103,6 +107,7 @@ dial finishes opening or tucking.
 | `title`, `subtitle` | design copy | Pass `null` to hide |
 | `showStats`, `onStatTap` | `true`, `null` | Stat card and its tap handler |
 | `showToast`, `toastMessageBuilder` | `true`, `"<label> opened"` | Confirmation toast |
+| `onActionSelected`, `onActionTapped` | `null` | Every settle; pill taps only |
 | `showBackground` | `true` | Grey gradient and edge fades; turn off to overlay your own screen |
 | `enableHaptics` | `true` | Selection click on each snap |
 | `arc` | `QuickActionsArc()` | Axis, geometry, item metrics, falloff, drag thresholds |
@@ -135,7 +140,9 @@ colour and `metrics.guideStroke` its width.
 
 Set `showBackground: false` and lay the dial over your own content. A scrim
 fades in behind it as the dial comes out, so the content dims while the
-actions are showing:
+actions are showing. While tucked, only the edge handle takes touches, so
+the page underneath stays usable. While open, a tap outside the dial tucks
+it:
 
 ```dart
 Stack(children: [

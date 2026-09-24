@@ -57,6 +57,7 @@ class AwesomeScrollActions extends StatefulWidget {
     this.showGuideLine = false,
     this.controller,
     this.onActionSelected,
+    this.onActionTapped,
     this.title = 'Quick actions',
     this.subtitle = 'Pull from the side \u2022 drag the dial',
     this.showStats = true,
@@ -87,7 +88,14 @@ class AwesomeScrollActions extends StatefulWidget {
   final bool showGuideLine;
 
   final QuickActionsController? controller;
+
+  /// Fires on every settle, spins included. To act only on a deliberate
+  /// choice, such as opening a screen, use [onActionTapped].
   final QuickActionSelected? onActionSelected;
+
+  /// Fires when the user taps a pill, once it has settled in the slot.
+  /// Spinning only highlights.
+  final QuickActionSelected? onActionTapped;
 
   /// Header text. Pass null to hide either line.
   final String? title;
@@ -235,13 +243,15 @@ class _AwesomeScrollActionsState extends State<AwesomeScrollActions>
     widget.controller?._notify();
   }
 
-  void _snapTo(int target) {
+  void _snapTo(int target, {bool tapped = false}) {
     final t = target.clamp(0, _count - 1);
     _pos
         .animateTo(t.toDouble(), duration: _d(widget.motion.snap), curve: widget.motion.snapCurve)
         .orCancel
         .then((_) {
-      if (mounted) _onSelected(t);
+      if (!mounted) return;
+      _onSelected(t);
+      if (tapped) widget.onActionTapped?.call(widget.actions[t], t);
     }, onError: (Object _) {});
   }
 
@@ -298,12 +308,18 @@ class _AwesomeScrollActionsState extends State<AwesomeScrollActions>
     if (_open.value < 0.5) {
       _setOpen(1);
     } else {
-      _snapTo(index);
+      _snapTo(index, tapped: true);
     }
   }
 
   void _onTapBackground() {
-    if (_open.value < 0.5) _setOpen(1);
+    if (_open.value < 0.5) {
+      _setOpen(1);
+    } else if (!widget.showBackground) {
+      // Laid over a page, a tap beside the dial is a tap outside it.
+      _hideToast();
+      _setOpen(0);
+    }
   }
 
   void _onPanStart(DragStartDetails d) {
@@ -415,24 +431,29 @@ class _AwesomeScrollActionsState extends State<AwesomeScrollActions>
 
     return Listener(
       onPointerSignal: _onPointerSignal,
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        dragStartBehavior: DragStartBehavior.down,
-        onTap: _onTapBackground,
-        onPanStart: _onPanStart,
-        onPanUpdate: _onPanUpdate,
-        onPanEnd: _onPanEnd,
-        onPanCancel: _onPanCancel,
-        child: ClipRect(
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final size = constraints.biggest;
-              return AnimatedBuilder(
-                animation: Listenable.merge([_pos, _open]),
-                builder: (context, _) => _buildStack(context, size, padding, theme),
-              );
-            },
-          ),
+      child: ClipRect(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final size = constraints.biggest;
+            return AnimatedBuilder(
+              animation: Listenable.merge([_pos, _open]),
+              builder: (context, _) {
+                // Tucked over a page, only the handle takes touches so the
+                // page underneath stays usable.
+                final passThrough = !widget.showBackground && _open.value < 0.5;
+                return GestureDetector(
+                  behavior: passThrough ? HitTestBehavior.deferToChild : HitTestBehavior.opaque,
+                  dragStartBehavior: DragStartBehavior.down,
+                  onTap: _onTapBackground,
+                  onPanStart: _onPanStart,
+                  onPanUpdate: _onPanUpdate,
+                  onPanEnd: _onPanEnd,
+                  onPanCancel: _onPanCancel,
+                  child: _buildStack(context, size, padding, theme, passThrough),
+                );
+              },
+            );
+          },
         ),
       ),
     );
@@ -461,6 +482,7 @@ class _AwesomeScrollActionsState extends State<AwesomeScrollActions>
     Size size,
     EdgeInsets padding,
     AwesomeScrollActionsTheme theme,
+    bool passThrough,
   ) {
     final arc = widget.arc;
     final motion = widget.motion;
@@ -659,42 +681,45 @@ class _AwesomeScrollActionsState extends State<AwesomeScrollActions>
                 ? math.max(0, size.height - dialTop + m.statGapAboveDial)
                 : null,
             left: m.statLeft,
-            child: Opacity(
-              opacity: m.statTuckedOpacity + (1 - m.statTuckedOpacity) * open,
-              child: _fitAboveDial(
-                arc.isHorizontal,
-                ConstrainedBox(
-                  constraints: BoxConstraints(maxWidth: m.statMaxWidth),
-                  child: AnimatedSwitcher(
-                  duration: _d(motion.statSwitch),
-                  switchInCurve: motion.statCurve,
-                  switchOutCurve: motion.statCurve,
-                  layoutBuilder: (current, previous) => Stack(
-                    alignment: Alignment.topLeft,
-                    children: [...previous, ?current],
-                  ),
-                  transitionBuilder: (child, animation) => FadeTransition(
-                    opacity: animation,
-                    child: SlideTransition(
-                      position: Tween(begin: motion.statSlide, end: Offset.zero).animate(animation),
-                      child: child,
+            child: IgnorePointer(
+              ignoring: passThrough,
+              child: Opacity(
+                opacity: m.statTuckedOpacity + (1 - m.statTuckedOpacity) * open,
+                child: _fitAboveDial(
+                  arc.isHorizontal,
+                  ConstrainedBox(
+                    constraints: BoxConstraints(maxWidth: m.statMaxWidth),
+                    child: AnimatedSwitcher(
+                    duration: _d(motion.statSwitch),
+                    switchInCurve: motion.statCurve,
+                    switchOutCurve: motion.statCurve,
+                    layoutBuilder: (current, previous) => Stack(
+                      alignment: Alignment.topLeft,
+                      children: [...previous, ?current],
                     ),
-                  ),
-                  child: stat == null
-                      ? SizedBox.shrink(key: ValueKey('stat-none-$_statIndex'))
-                      : widget.statBuilder?.call(
-                            context,
-                            widget.actions[_statIndex],
-                            stat,
-                          ) ??
-                          _StatCard(
-                            key: ValueKey('stat-$_statIndex'),
-                            stat: stat,
-                            theme: theme,
-                            onTap: widget.onStatTap == null
-                                ? null
-                                : () => widget.onStatTap!(widget.actions[_statIndex], _statIndex),
-                          ),
+                    transitionBuilder: (child, animation) => FadeTransition(
+                      opacity: animation,
+                      child: SlideTransition(
+                        position: Tween(begin: motion.statSlide, end: Offset.zero).animate(animation),
+                        child: child,
+                      ),
+                    ),
+                    child: stat == null
+                        ? SizedBox.shrink(key: ValueKey('stat-none-$_statIndex'))
+                        : widget.statBuilder?.call(
+                              context,
+                              widget.actions[_statIndex],
+                              stat,
+                            ) ??
+                            _StatCard(
+                              key: ValueKey('stat-$_statIndex'),
+                              stat: stat,
+                              theme: theme,
+                              onTap: widget.onStatTap == null
+                                  ? null
+                                  : () => widget.onStatTap!(widget.actions[_statIndex], _statIndex),
+                            ),
+                    ),
                   ),
                 ),
               ),
